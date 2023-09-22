@@ -1,7 +1,7 @@
 import spacy
 # Load the SpaCy language model
-#spacy.cli.download('en_core_web_md')
-nlp = spacy.load('en_core_web_md')
+# spacy.cli.download('en_core_web_lg')
+nlp = spacy.load('en_core_web_lg')
 
 # Define your set of seed words
 seed_words = {
@@ -108,17 +108,30 @@ seed_words = {
 
 
 # Input paragraph
-paragraph = "A daring nighttime break-in at a prestigious jewelry store leaves investigators baffled. Thieves, armed with cutting-edge technology, make off with priceless diamonds. The case involves an intricate web of international crime syndicates, double-crosses, and a relentless pursuit to recover the stolen jewels."
-
+paragraph =  "In a high-profile criminal case that captivated the nation, John Smith stood accused of masterminding a complex bank heist. The investigation uncovered a web of evidence, including security camera footage, fingerprints at the scene, and financial transactions linking Smith to the stolen funds. During the trial, the prosecution presented a compelling case, presenting witness testimonies, forensic analysis, and bank records. The defense, however, argued that Smith was wrongly accused and presented an alibi corroborated by family members. After weeks of legal proceedings and intense deliberation, the jury reached a verdict of guilty, and John Smith was sentenced to a lengthy prison term. This criminal case underscored the importance of a thorough investigation and the adversarial nature of the legal system."
+common_words = [
+    "plaintiff", "defendant", "complaint", "summons", "answer",
+    "motion", "judge", "court", "attorney", "evidence",
+    "testimony", "jury", "verdict", "appeal", "settlement",
+    "counsel", "docket", "pleadings", "discovery", "subpoena",
+    "lawsuit", "cause of action", "jurisdiction", "injunction",
+    "damages", "cross-examination", "affidavit", "statute",
+    "precedent", "hearing"
+]
+words = paragraph.split()
+filtered_words = [word for word in words if word.lower() not in common_words]
+filtered_paragraph = " ".join(filtered_words)
+paragraph=filtered_paragraph
+# print(paragraph)
 # Tokenize and process the paragraph
 doc = nlp(paragraph)
-extracted_words=set();
+extracted_words=set()
 
 for token in doc:
     if token.pos_ != "PROPN":
         extracted_words.add(token.text)
 
-print(extracted_words)
+# print(extracted_words)
 
 # Initialize a set to store related words
 related_words = set()
@@ -133,23 +146,25 @@ for word in extracted_words:
         similarity_score = nlp(word).similarity(nlp(key))
         if similarity_score > similarity_threshold:
             result[key]=seed_words[key]
-            print(key,word)
-            print(similarity_score)
+            #print(key,word)
+            #print(similarity_score)
 
 # Print the related words
 
 sorted_dict = dict(sorted(result.items(), key=lambda item: item[1], reverse=True))
 
-# critical_score=0
+critical_score=0
 
 max_elements = min(3, len(sorted_dict))
 
-# # Iterate through the dictionary up to a maximum of 10 elements
-# for key, value in list(sorted_dict.items())[:max_elements]:
-#   critical_score+=value
+# Iterate through the dictionary up to a maximum of 10 elements
+for key, value in list(sorted_dict.items())[:max_elements]:
+  critical_score+=value
 
 # print("Related Words:")
-print(sorted_dict)
+# print(sorted_dict)
 # print(result)
 # for word in related_words:
 #     print(word)
+print("The critical score is: ")
+print(critical_score)
